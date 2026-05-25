@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ABA 两天 Top Search Terms 对比</title>
+  <style>
+    :root{--bg:#0b1020;--fg:#eaf0ff;--mut:#a7b4d6;--bd:rgba(255,255,255,.12);--r:14px;--sh:0 10px 26px rgba(0,0,0,.32);--mx:1040px;--p:16px}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,"PingFang SC","Microsoft YaHei",sans-serif;background:radial-gradient(1100px 700px at 10% 0%, rgba(110,168,255,.22), transparent 55%),radial-gradient(900px 600px at 90% 10%, rgba(109,255,207,.14), transparent 55%),var(--bg);color:var(--fg)}
+    header{position:sticky;top:0;z-index:10;backdrop-filter:blur(10px);background:rgba(11,16,32,.62);border-bottom:1px solid var(--bd)}
+    .head{max-width:var(--mx);margin:0 auto;padding:12px var(--p);display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:900}
+    .dot{width:12px;height:12px;border-radius:999px;background:linear-gradient(135deg,#6ea8ff,#6dffcf)}
+    .pill{display:inline-flex;align-items:center;gap:8px;padding:7px 10px;border-radius:999px;border:1px solid var(--bd);background:rgba(255,255,255,.05);color:var(--mut);font-weight:800;font-size:12px}
+    .wrap{max-width:var(--mx);margin:0 auto;padding:var(--p)}
+    h1{margin:12px 0 4px;font-size:22px}
+    .sub{margin:0;color:var(--mut);font-size:13px;max-width:92ch}
+    .grid{display:grid;gap:12px;margin-top:14px}
+    .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media (max-width:980px){.row2{grid-template-columns:1fr}}
+    .card{background:rgba(255,255,255,.05);border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--sh);padding:12px}
+    label{display:block;color:var(--mut);font-weight:900;font-size:12px;margin:0 0 6px}
+    textarea{width:100%;min-height:120px;resize:vertical;padding:12px;border-radius:12px;border:1px solid var(--bd);background:rgba(11,16,32,.45);color:var(--fg);outline:none;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:12px;line-height:1.5}
+    .mini{min-height:90px}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    button{appearance:none;border:none;cursor:pointer;padding:9px 12px;border-radius:12px;font-weight:900;background:linear-gradient(135deg, rgba(110,168,255,.95), rgba(109,255,207,.85));color:#0b1020;border:1px solid rgba(255,255,255,.18)}
+    button.secondary{background:rgba(255,255,255,.06);border:1px solid var(--bd);color:var(--fg)}
+    .note{margin:0;color:var(--mut);font-size:12px}
+    .err{color:#ff9db1;font-weight:900}
+    .meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px}
+    .kv{display:inline-flex;gap:6px;align-items:center;padding:6px 10px;border-radius:999px;border:1px solid var(--bd);background:rgba(255,255,255,.04);font-size:12px;color:var(--mut);font-weight:900}
+    .kv b{color:var(--fg)}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    @media (max-width:980px){.stats{grid-template-columns:repeat(2,1fr)}}
+    .stat{border:1px solid var(--bd);border-radius:14px;padding:10px;background:rgba(255,255,255,.04)}
+    .k{color:var(--mut);font-weight:900;font-size:12px}
+    .v{font-size:18px;font-weight:1000;margin-top:6px}
+    table{width:100%;border-collapse:collapse;overflow:hidden;border-radius:14px;border:1px solid var(--bd)}
+    th,td{padding:10px;border-bottom:1px solid var(--bd);text-align:left;font-size:13px}
+    th{background:rgba(255,255,255,.06);color:var(--mut);font-weight:900}
+    tr:hover td{background:rgba(255,255,255,.03)}
+    .seg{display:inline-flex;align-items:center;border:1px solid var(--bd);border-radius:999px;overflow:hidden;background:rgba(255,255,255,.05)}
+    .seg button{border-radius:0;background:transparent;color:var(--mut);border:none;padding:8px 10px}
+    .seg button.active{background:rgba(255,255,255,.10);color:var(--fg)}
+    .collapse{display:none;margin-top:10px}
+    .collapse.show{display:block}
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.19.3/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+<header>
+  <div class="head">
+    <div class="brand"><span class="dot"></span> ABA 两天 Top Search Terms 对比</div>
+    <div class="pill" id="todayPill">本地分析</div>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1>ABA 两天 Top Search Terms 对比</h1>
+  <p class="sub">上传两份 ABA 文件（CSV/XLSX）或粘贴两天数据。生成：新增词（仅 Day2）与排名变化（共同词）。</p>
+
+  <section class="grid">
+    <div class="card">
+      <label for="files">上传两份文件（一次选择 2 个，顺序不限）</label>
+      <input id="files" type="file" accept=".csv,.xlsx,.xls" multiple />
+      <div class="meta" id="filesMeta"></div>
+      <div class="row2" style="margin-top:10px">
+        <textarea id="dayA" placeholder="可选：粘贴 Day A（term | rank）"></textarea>
+        <textarea id="dayB" placeholder="可选：粘贴 Day B（term | rank）"></textarea>
+      </div>
+      <p class="note" style="margin-top:8px">粘贴支持：term | rank 或 term,rank 或 term(制表符)rank。</p>
+    </div>
+
+    <div class="card">
+      <div class="actions">
+        <button id="analyzeBtn" type="button">分析并生成结果</button>
+        <button class="secondary" id="demoBtn" type="button">填充示例</button>
+        <button class="secondary" id="clearBtn" type="button">清空</button>
+        <span id="msg" class="note"></span>
+      </div>
+      <p class="note" style="margin-top:8px">CSV 可离线读取；XLSX/XLS 需要加载上方 xlsx CDN。</p>
+    </div>
+
+    <div class="card" id="summaryCard" style="display:none">
+      <div class="stats">
+        <div class="stat"><div class="k">Day 1 日期</div><div class="v" id="sDate1">-</div></div>
+        <div class="stat"><div class="k">Day 2 日期</div><div class="v" id="sDate2">-</div></div>
+        <div class="stat"><div class="k">Day 1 词数</div><div class="v" id="sDay1">-</div></div>
+        <div class="stat"><div class="k">Day 2 词数</div><div class="v" id="sDay2">-</div></div>
+        <div class="stat"><div class="k">新增词</div><div class="v" id="sNew">-</div></div>
+        <div class="stat"><div class="k">共同词</div><div class="v" id="sCommon">-</div></div>
+      </div>
+
+      <div class="actions" style="margin-top:12px">
+        <span class="pill">筛选</span>
+        <div class="seg" style="margin-left:4px">
+          <button id="viewNewBtn" type="button" class="active">新增词表</button>
+          <button id="viewCommonBtn" type="button">排名变化表</button>
+        </div>
+        <label class="pill">新增 Top
+          <select id="newTop" style="margin-left:8px">
+            <option value="0" selected>全部</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+        </label>
+        <label class="pill">最小变化
+          <input id="minAbs" type="number" min="0" value="0" style="margin-left:8px;width:80px" />
+        </label>
+        <label class="pill">仅看
+          <select id="trendFilter" style="margin-left:8px">
+            <option value="all" selected>全部</option>
+            <option value="up">上升</option>
+            <option value="down">下降</option>
+            <option value="flat">稳定</option>
+          </select>
+        </label>
+        <label class="pill">搜索
+          <input id="q" type="text" placeholder="关键词" style="margin-left:8px;width:180px" />
+        </label>
+        <button class="secondary" id="toggleNeg" type="button">否词</button>
+        <span class="pill" id="negCountPill">否词过滤：0</span>
+        <span style="flex:1"></span>
+        <button class="secondary" id="exportNew" type="button">导出新增词 CSV</button>
+        <button class="secondary" id="exportCommon" type="button">导出排名变化 CSV</button>
+      </div>
+
+      <div id="negBox" class="collapse">
+        <label for="negWords">否词列表（包含即过滤，不区分大小写）</label>
+        <textarea id="negWords" class="mini" placeholder="每行一个否词，例如：barbie\nlego\nmarvel"></textarea>
+      </div>
+    </div>
+
+    <div class="row2" id="tables" style="display:none">
+      <div class="card" id="newCard">
+        <div class="actions" style="justify-content:space-between">
+          <div>
+            <div class="k">新增词（仅 Day2）</div>
+            <div class="note">只出现在最近一天的词</div>
+          </div>
+          <div class="pill" id="newCountPill">0</div>
+        </div>
+        <div style="margin-top:10px;overflow:auto">
+          <table><thead><tr><th>搜索词</th><th>排名</th></tr></thead><tbody id="newBody"></tbody></table>
+        </div>
+      </div>
+
+      <div class="card" id="commonCard" style="display:none">
+        <div class="actions" style="justify-content:space-between">
+          <div>
+            <div class="k">排名变化（共同词）</div>
+            <div class="note" id="commonDateNote"></div>
+          </div>
+          <div class="pill" id="commonCountPill">0</div>
+        </div>
+        <div style="margin-top:10px;overflow:auto">
+          <table><thead><tr><th>搜索词</th><th>最新排名</th><th>排名变化</th></tr></thead><tbody id="commonBody"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="exportCard" style="display:none">
+      <div class="actions" style="justify-content:space-between">
+        <div>
+          <div class="k">导出内容</div>
+          <div style="font-size:16px;font-weight:1000;margin-top:4px" id="exportTitle">-</div>
+        </div>
+        <div class="actions" style="margin-top:0">
+          <button class="secondary" id="copyExportTsv" type="button">复制 TSV</button>
+          <button class="secondary" id="copyExportCsv" type="button">复制 CSV</button>
+          <a class="pill" id="openBlob" href="#" target="_blank" rel="noopener" style="text-decoration:none">打开链接</a>
+          <button class="secondary" id="closeExport" type="button">收起</button>
+        </div>
+      </div>
+      <textarea id="exportText" style="min-height:220px;margin-top:10px" readonly></textarea>
+      <p class="note" style="margin-top:8px">粘贴到 Excel：优先复制 TSV，会自动分列。</p>
+    </div>
+
+    <div class="card" id="errorCard" style="display:none">
+      <div class="err">解析失败</div>
+      <p class="note" id="errorDetail" style="margin-top:8px"></p>
+    </div>
+  </section>
+</main>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const state = { day1:{date:'',country:''}, day2:{date:'',country:''}, newList:[], commonList:[], viewNew:[], viewCommon:[], last:{csv:'',tsv:''} };
+  const msg = (t) => { $('msg').textContent = t || ''; };
+
+  const esc = (s) => {
+    s = String(s ?? '');
+    const map = {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"};
+    let out = '';
+    for (let i=0;i<s.length;i++) out += map[s[i]] || s[i];
+    return out;
+  };
+
+  const norm = (s) => {
+    s = String(s ?? '').trim();
+    if (!s) return '';
+    return s.replace(/\s+/g,' ');
+  };
+
+  const isDate = (s) => /^\d{4}-\d{2}-\d{2}$/.test(String(s||''));
+  const findDateInText = (t) => {
+    const m = String(t||'').match(/\d{4}-\d{2}-\d{2}/);
+    return m ? m[0] : '';
+  };
+
+  const nameMeta = (fn) => {
+    const base = String(fn||'').replace(/\.[^.]+$/,'');
+    const parts = base.split('_');
+    const country = parts[0] || '';
+    let date = '';
+    if (parts.length >= 3){
+      const a = parts[parts.length-3], b = parts[parts.length-2], c = parts[parts.length-1];
+      const candidate = `${a}-${b}-${c}`;
+      if (isDate(candidate)) date = candidate;
+    }
+    return { country, date };
+  };
+
+  const csvRows = (text) => {
+    text = String(text || '');
+    if (text && text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+    const rows = []; let row = [], field = '', q = false;
+    for (let i=0;i<text.length;i++){
+      const ch = text[i];
+      if (q){
+        if (ch === '"'){
+          if (text[i+1] === '"'){ field += '"'; i++; }
+          else q = false;
+        } else field += ch;
+        continue;
+      }
+      if (ch === '"'){ q = true; continue; }
+      if (ch === ','){ row.push(field); field=''; continue; }
+      if (ch === '\n'){ row.push(field); rows.push(row); row=[]; field=''; continue; }
+      if (ch === '\r') continue;
+      field += ch;
+    }
+    row.push(field); rows.push(row);
+    return rows;
+  };
+
+  const headerIndex = (headers, candidates) => {
+    for (let i=0;i<headers.length;i++){
+      const h = String(headers[i]||'').trim().toLowerCase();
+      for (let j=0;j<candidates.length;j++){
+        const c = candidates[j];
+        if (c && (h === c || h.indexOf(c) !== -1)) return i;
+      }
+    }
+    return -1;
+  };
+
+  const extract = (rows) => {
+    if (!rows || !rows.length) return { map:new Map(), errors:['文件为空'], date:'' };
+    const termC = ['search term','searchterm','popular search term','热门搜索词','搜索词'];
+    const rankC = ['search frequency rank','rank','搜索频率排名','排名'];
+    const dateC = ['report date','reporting date','报告日期'];
+
+    let h = -1, best = -1;
+    const scan = Math.min(rows.length, 80);
+    for (let r=0;r<scan;r++){
+      const hdr = (rows[r]||[]).map(x=>String(x||'').trim().toLowerCase());
+      const joined = hdr.join(' ');
+      if (joined.indexOf('报告范围') !== -1 || joined.indexOf('选择日期') !== -1) continue;
+      const t = headerIndex(hdr, termC), k = headerIndex(hdr, rankC);
+      if (t === -1 || k === -1) continue;
+      const score = 100 - Math.min(t,30) - Math.min(k,30);
+      if (score > best) { best = score; h = r; }
+    }
+    if (h === -1) h = 0;
+
+    const hdr = (rows[h]||[]).map(x=>String(x||'').trim().toLowerCase());
+    let tcol = headerIndex(hdr, termC), rcol = headerIndex(hdr, rankC), dcol = headerIndex(hdr, dateC);
+    if (tcol === -1) tcol = 0;
+    if (rcol === -1) rcol = 1;
+
+    const map = new Map();
+    let repDate = '';
+    for (let i=h+1;i<rows.length;i++){
+      const row = rows[i] || [];
+      if (!repDate && dcol !== -1) repDate = findDateInText(String(row[dcol]||'')) || repDate;
+      const term = norm(row[tcol]);
+      const rank = Number(String(row[rcol]||'').trim());
+      if (!term || !isFinite(rank) || rank<=0) continue;
+      map.set(term.toLowerCase(), { term, rank });
+    }
+    return { map, errors: map.size?[]:['未抽取到任何词：请确认包含“搜索词/ Search Term”和“搜索频率排名/ Rank”列'], date: repDate };
+  };
+
+  const readFile = (file) => new Promise((resolve,reject)=>{
+    const lower = String(file.name||'').toLowerCase();
+    const fr = new FileReader();
+    fr.onerror = () => reject(new Error('读取文件失败'));
+    fr.onload = (e)=>{
+      try{
+        if (lower.endsWith('.csv')){
+          resolve(extract(csvRows(e.target.result || '')));
+          return;
+        }
+        if (!window.XLSX || !XLSX.read) throw new Error('未加载 xlsx 库，无法读取 .xlsx/.xls');
+        const data = new Uint8Array(e.target.result);
+        const wb = XLSX.read(data, {type:'array'});
+        const sheet = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet, {header:1, defval:''});
+        resolve(extract(rows));
+      }catch(err){ reject(err); }
+    };
+    if (lower.endsWith('.csv')) fr.readAsText(file, 'utf-8');
+    else fr.readAsArrayBuffer(file);
+  });
+
+  const parsePaste = (text) => {
+    const map = new Map();
+    const errors = [];
+    const lines = String(text||'').split(/\r?\n/);
+    for (let i=0;i<lines.length;i++){
+      const raw0 = lines[i];
+      const raw = String(raw0||'').trim();
+      if (!raw) continue;
+      const low = raw.toLowerCase();
+      if (low.indexOf('search') !== -1 && low.indexOf('term') !== -1 && low.indexOf('rank') !== -1) continue;
+      let term='', rank='';
+      if (raw.indexOf('|') !== -1){ const p = raw.split('|'); term = p[0]; rank = p[1] || ''; }
+      else if (raw.indexOf('\t') !== -1){ const p = raw.split('\t'); term = p[0]; rank = p[1] || ''; }
+      else if (raw.indexOf(',') !== -1){ const p = raw.split(','); term = p[0]; rank = p[1] || ''; }
+      else {
+        const m = raw.match(/^(.*?)(\d+)$/);
+        if (!m){ errors.push('第 ' + (i+1) + ' 行无法解析："' + raw + '"'); continue; }
+        term = m[1]; rank = m[2];
+      }
+      term = norm(term);
+      const r = Number(String(rank||'').trim());
+      if (!term){ errors.push('第 ' + (i+1) + ' 行缺少 Search Term："' + raw + '"'); continue; }
+      if (!isFinite(r) || r<=0){ errors.push('第 ' + (i+1) + ' 行 Rank 不是正数："' + raw + '"'); continue; }
+      map.set(term.toLowerCase(), { term, rank:r });
+    }
+    return { map, errors };
+  };
+
+  const compute = (m1, m2) => {
+    const newList = [];
+    m2.forEach((v,k)=>{ if (!m1.has(k)) newList.push({term:v.term, rank:v.rank}); });
+    newList.sort((a,b)=>a.rank-b.rank);
+    const common = [];
+    m1.forEach((v1,k)=>{ if (m2.has(k)) { const v2 = m2.get(k); common.push({term:v2.term, day1:v1.rank, day2:v2.rank}); } });
+    common.sort((a,b)=>{
+      const da = Math.abs(a.day1-a.day2), db = Math.abs(b.day1-b.day2);
+      if (db!==da) return db-da;
+      return a.day2-b.day2;
+    });
+    return { newList, common };
+  };
+
+  const trend = (d) => Math.abs(d) <= 2 ? 'flat' : (d>0?'up':'down');
+
+  const applyFilters = () => {
+    const topN = Number($('newTop').value||0)||0;
+    const minAbs = Math.max(0, Number($('minAbs').value||0)||0);
+    const tf = $('trendFilter').value || 'all';
+    const q = String($('q').value||'').trim().toLowerCase();
+
+    const negs = String($('negWords').value||'').replace(/,/g,'\n').split(/\r?\n/).map(s=>s.trim().toLowerCase()).filter(Boolean);
+    const blocked = (term) => {
+      if (!negs.length) return false;
+      const t = String(term||'').toLowerCase();
+      for (let i=0;i<negs.length;i++) if (t.indexOf(negs[i]) !== -1) return true;
+      return false;
+    };
+
+    let removed = 0;
+    let n = [];
+    for (let i=0;i<state.newList.length;i++){
+      const x = state.newList[i];
+      if (blocked(x.term)) { removed++; continue; }
+      n.push(x);
+    }
+    let c = [];
+    for (let i=0;i<state.commonList.length;i++){
+      const x = state.commonList[i];
+      if (blocked(x.term)) { removed++; continue; }
+      c.push(x);
+    }
+
+    if (q){
+      n = n.filter(r=>r.term.toLowerCase().indexOf(q) !== -1);
+      c = c.filter(r=>r.term.toLowerCase().indexOf(q) !== -1);
+    }
+    if (topN>0) n = n.slice(0, topN);
+    if (minAbs>0) c = c.filter(r=>Math.abs(r.day1-r.day2) >= minAbs);
+    if (tf!=='all') c = c.filter(r=>trend(r.day1-r.day2)===tf);
+
+    state.viewNew = n;
+    state.viewCommon = c;
+
+    $('negCountPill').textContent = '否词过滤：' + removed;
+    $('newCountPill').textContent = n.length + ' 个';
+    $('commonCountPill').textContent = c.length + ' 个';
+
+    $('newBody').innerHTML = n.map(r=>'<tr><td>' + esc(r.term) + '</td><td>' + r.rank + '</td></tr>').join('');
+    $('commonBody').innerHTML = c.map(r=>{
+      const d = r.day1-r.day2;
+      const ch = d===0 ? '0' : (d>0?('+'+d):String(d));
+      return '<tr><td>' + esc(r.term) + '</td><td>' + r.day2 + '</td><td>' + ch + '</td></tr>';
+    }).join('');
+  };
+
+  const setView = (mode) => {
+    const isNew = mode === 'new';
+    $('newCard').style.display = isNew ? 'block' : 'none';
+    $('commonCard').style.display = isNew ? 'none' : 'block';
+    $('viewNewBtn').classList.toggle('active', isNew);
+    $('viewCommonBtn').classList.toggle('active', !isNew);
+  };
+
+  const toCSV = (rows) => rows.map(r => r.map(v => {
+    v = String(v ?? '').replace(/\r?\n/g,' ');
+    if (v.indexOf('"') !== -1) v = v.replace(/"/g,'""');
+    if (/[",]/.test(v)) v = '"' + v + '"';
+    return v;
+  }).join(',')).join('\n');
+
+  const toTSV = (rows) => rows.map(r => r.map(v => String(v ?? '').replace(/\r?\n/g,' ').replace(/\t/g,' ')).join('\t')).join('\n');
+
+  const showExport = (filename, csv, tsv, url) => {
+    state.last = { csv, tsv };
+    $('exportTitle').textContent = filename;
+    $('exportText').value = tsv;
+    $('exportCard').style.display = 'block';
+    if (url){ $('openBlob').href = url; $('openBlob').style.opacity='1'; $('openBlob').style.pointerEvents='auto'; }
+    else { $('openBlob').href='#'; $('openBlob').style.opacity='.5'; $('openBlob').style.pointerEvents='none'; }
+  };
+
+  const download = (filename, csv, tsv) => {
+    let url = '';
+    try{ url = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8;'})); }catch(e){ url=''; }
+    showExport(filename, csv, tsv, url);
+    try{
+      if (!url) throw new Error('no url');
+      const a = document.createElement('a');
+      a.href = url; a.download = filename; a.style.display='none';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      msg('已触发下载：' + filename + '（若无反应，请复制 TSV）');
+    }catch(e){
+      msg('当前环境可能阻止自动下载，请复制 TSV 粘贴到 Excel。');
+    }
+    if (url) setTimeout(()=>{ try{ URL.revokeObjectURL(url); }catch(e){} }, 60000);
+  };
+
+  const copy = async (text, ok) => {
+    try{
+      if (navigator.clipboard && navigator.clipboard.writeText){
+        await navigator.clipboard.writeText(text);
+        msg(ok);
+        return;
+      }
+    }catch(e){}
+    $('exportText').value = text;
+    $('exportText').focus();
+    $('exportText').select();
+    try{ document.execCommand('copy'); msg(ok); }
+    catch(e){ msg('复制失败：请手动全选复制。'); }
+  };
+
+  const renderFilesMeta = (items) => {
+    if (!items.length) { $('filesMeta').innerHTML=''; return; }
+    $('filesMeta').innerHTML = items.map(it => {
+      const parts = [];
+      if (it.country) parts.push('国家 <b>' + esc(it.country) + '</b>');
+      if (it.date) parts.push('日期 <b>' + esc(it.date) + '</b>');
+      if (typeof it.count === 'number') parts.push('抽取词数 <b>' + it.count + '</b>');
+      return '<span class="kv">' + parts.join(' · ') + '</span>';
+    }).join('');
+  };
+
+  const analyze = async () => {
+    msg('');
+    $('errorCard').style.display = 'none';
+    try{
+      const files = Array.from($('files').files || []).slice(0, 2);
+      let A, B;
+      const errors = [];
+
+      if (files.length >= 2){
+        const f0 = files[0], f1 = files[1];
+        const meta0 = nameMeta(f0.name);
+        const meta1 = nameMeta(f1.name);
+        const out0 = await readFile(f0);
+        const out1 = await readFile(f1);
+        if (out0.errors && out0.errors.length) errors.push(...out0.errors.map(x=>'文件1：' + x));
+        if (out1.errors && out1.errors.length) errors.push(...out1.errors.map(x=>'文件2：' + x));
+        if (out0.date) meta0.date = out0.date;
+        if (out1.date) meta1.date = out1.date;
+        renderFilesMeta([
+          {country:meta0.country, date:meta0.date, count:out0.map.size},
+          {country:meta1.country, date:meta1.date, count:out1.map.size}
+        ]);
+        A = { map: out0.map, meta: meta0 };
+        B = { map: out1.map, meta: meta1 };
+      } else {
+        const pA = parsePaste($('dayA').value);
+        const pB = parsePaste($('dayB').value);
+        if (pA.errors && pA.errors.length) errors.push(...pA.errors.map(x=>'文本A：' + x));
+        if (pB.errors && pB.errors.length) errors.push(...pB.errors.map(x=>'文本B：' + x));
+        A = { map: pA.map, meta: {date:'',country:''} };
+        B = { map: pB.map, meta: {date:'',country:''} };
+      }
+
+      if (errors.length){
+        $('errorCard').style.display = 'block';
+        $('errorDetail').textContent = errors.slice(0, 16).join('；') + (errors.length>16?'…':'');
+        $('tables').style.display = 'none';
+        $('summaryCard').style.display = 'none';
+        return;
+      }
+
+      let day1 = A, day2 = B;
+      if (day1.meta.date && day2.meta.date && day1.meta.date > day2.meta.date) { const t = day1; day1 = day2; day2 = t; }
+
+      state.day1 = day1.meta;
+      state.day2 = day2.meta;
+      $('sDate1').textContent = day1.meta.date || '-';
+      $('sDate2').textContent = day2.meta.date || '-';
+      $('commonDateNote').textContent = day2.meta.date ? ('最新排名对应日期：' + day2.meta.date) : '';
+
+      const lists = compute(day1.map, day2.map);
+      state.newList = lists.newList;
+      state.commonList = lists.common;
+
+      $('sDay1').textContent = day1.map.size;
+      $('sDay2').textContent = day2.map.size;
+      $('sNew').textContent = state.newList.length;
+      $('sCommon').textContent = state.commonList.length;
+
+      $('summaryCard').style.display = 'block';
+      $('tables').style.display = 'grid';
+      applyFilters();
+      setView('new');
+      msg('已生成结果。');
+    }catch(err){
+      $('errorCard').style.display = 'block';
+      $('errorDetail').textContent = err && err.message ? err.message : String(err);
+      $('tables').style.display = 'none';
+      $('summaryCard').style.display = 'none';
+    }
+  };
+
+  const exportNew = () => {
+    const d2 = state.day2.date || 'day2';
+    const rows = [['搜索词','排名']];
+    for (let i=0;i<state.viewNew.length;i++) rows.push([state.viewNew[i].term, state.viewNew[i].rank]);
+    const csv = toCSV(rows), tsv = toTSV(rows);
+    download('ABA_New_Terms_' + d2 + '.csv', csv, tsv);
+  };
+
+  const exportCommon = () => {
+    const d1 = state.day1.date || 'day1';
+    const d2 = state.day2.date || 'day2';
+    const rows = [['搜索词','最新排名','排名变化']];
+    for (let i=0;i<state.viewCommon.length;i++){
+      const r = state.viewCommon[i];
+      const d = r.day1 - r.day2;
+      const ch = d===0 ? '0' : (d>0?('+'+d):String(d));
+      rows.push([r.term, r.day2, ch]);
+    }
+    const csv = toCSV(rows), tsv = toTSV(rows);
+    download('ABA_Rank_Changes_' + d1 + '_vs_' + d2 + '.csv', csv, tsv);
+  };
+
+  const demo = () => {
+    $('files').value = '';
+    $('filesMeta').innerHTML = '';
+    $('dayA').value = ['endoscope camera | 18','borescope | 42','inspection camera | 33','snake camera | 55','usb endoscope | 24'].join('\n');
+    $('dayB').value = ['endoscope camera | 12','borescope | 47','inspection camera | 19','pipe inspection camera | 31','usb endoscope | 23'].join('\n');
+    analyze();
+  };
+
+  const clearAll = () => {
+    $('files').value='';
+    $('filesMeta').innerHTML='';
+    $('dayA').value='';
+    $('dayB').value='';
+    $('negWords').value='';
+    $('negBox').classList.remove('show');
+    $('tables').style.display='none';
+    $('summaryCard').style.display='none';
+    $('exportCard').style.display='none';
+    $('errorCard').style.display='none';
+    $('newTop').value='0';
+    $('minAbs').value='0';
+    $('trendFilter').value='all';
+    $('q').value='';
+    $('negCountPill').textContent='否词过滤：0';
+    setView('new');
+    msg('');
+  };
+
+  $('analyzeBtn').addEventListener('click', analyze);
+  $('demoBtn').addEventListener('click', demo);
+  $('clearBtn').addEventListener('click', clearAll);
+  $('viewNewBtn').addEventListener('click', ()=>setView('new'));
+  $('viewCommonBtn').addEventListener('click', ()=>setView('common'));
+  $('exportNew').addEventListener('click', exportNew);
+  $('exportCommon').addEventListener('click', exportCommon);
+  $('toggleNeg').addEventListener('click', ()=> $('negBox').classList.toggle('show'));
+  $('closeExport').addEventListener('click', ()=> $('exportCard').style.display='none');
+  $('copyExportTsv').addEventListener('click', ()=> copy(state.last.tsv || $('exportText').value || '', 'TSV 已复制，粘贴到 Excel 会自动分列。'));
+  $('copyExportCsv').addEventListener('click', ()=> copy(state.last.csv || '', 'CSV 已复制。'));
+
+  ['newTop','minAbs','trendFilter','q','negWords'].forEach(id=>{
+    $(id).addEventListener('input', ()=> $('tables').style.display!=='none' && applyFilters());
+    $(id).addEventListener('change', ()=> $('tables').style.display!=='none' && applyFilters());
+  });
+
+  $('files').addEventListener('change', async ()=>{
+    const files = Array.from($('files').files || []).slice(0, 2);
+    renderFilesMeta(files.map(f => nameMeta(f.name)));
+    try{
+      const out = [];
+      for (let i=0;i<files.length;i++){
+        const ex = await readFile(files[i]);
+        const m = nameMeta(files[i].name);
+        if (ex.date) m.date = ex.date;
+        out.push({country:m.country, date:m.date, count:ex.map.size});
+      }
+      renderFilesMeta(out);
+    }catch(e){}
+  });
+
+  $('copyExportTsv').addEventListener('click', ()=>{});
+
+  (function(){
+    const r = csvRows('a,b\n1,2\n');
+    console.assert(r.length === 3 && r[1][0] === '1' && r[1][1] === '2');
+    const p = parsePaste('foo|1\nbar,2\n');
+    console.assert(p.map.get('foo').rank === 1 && p.map.get('bar').rank === 2);
+    const c = compute(new Map([['a',{term:'a',rank:2}]]), new Map([['a',{term:'a',rank:1}],['b',{term:'b',rank:3}]]));
+    console.assert(c.newList.length === 1 && c.common.length === 1 && c.common[0].day2 === 1);
+  })();
+
+  try{
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const da = String(d.getDate()).padStart(2,'0');
+    $('todayPill').textContent = '本地分析 · ' + y + '-' + m + '-' + da;
+  }catch(e){}
+</script>
+</body>
+</html>
